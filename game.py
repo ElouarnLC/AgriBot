@@ -62,26 +62,39 @@ class CookoBot(arcade.Window):
             vertical=True, x=INSTRUCTION_TEXT_X, y=INSTRUCTION_TEXT_Y
         )
 
+        # Conteneur principal vertical
+        main_container = arcade.gui.UIBoxLayout(vertical=True)
+
+        # Conteneur horizontal pour deux boutons côte à côte
+        horizontal_container = arcade.gui.UIBoxLayout(vertical=False)
+
         # Créer le bouton de ramassage
         pick_up_button = arcade.gui.UIFlatButton(
             text="Ramasser", width=BUTTON_WIDTH, style=BUTTON_MAUVE
         )
         pick_up_button.on_click = self.action_pick
-        self.action_box.add(pick_up_button.with_space_around(right=PADDING))
+        horizontal_container.add(pick_up_button.with_space_around(right=PADDING))  # Espacement à droite
 
-        # Créer le bouton de dépôt
-        drop_button = arcade.gui.UIFlatButton(
+        # Créer le bouton de ramassage
+        drop_button  = arcade.gui.UIFlatButton(
             text="Déposer", width=BUTTON_WIDTH, style=BUTTON_MAUVE
         )
-        drop_button.on_click = self.action_drop
-        self.action_box.add(drop_button)
+        drop_button .on_click = self.action_drop
+        horizontal_container.add(drop_button )
 
-        # Créer le bouton d'arrosage
+        # Ajouter le conteneur horizontal au conteneur principal
+        main_container.add(horizontal_container.with_space_around(bottom=10))  # Espacement en bas
+
+        # Arroser
         drop_water_button = arcade.gui.UIFlatButton(
             text="Arroser", width=BUTTON_WIDTH, style=BUTTON_MAUVE
         )
         drop_water_button.on_click = self.drop_water
-        self.action_box.add(drop_water_button)
+        main_container.add(drop_water_button)
+
+        # Ajouter le conteneur principal à l'interface
+        self.action_box.add(main_container)
+
 
         # Créer la zone de texte
         self.text_input = arcade.gui.UIInputText(
