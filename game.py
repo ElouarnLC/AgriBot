@@ -8,6 +8,29 @@ from constants import *
 from llm_request import make_request, make_prompt, extract_thoughts_and_command
 import traceback
 
+class Fruit():
+    def __init__(self,x,y, type):
+        self.x = x
+        self.y = y
+        self.type = random.choice(type)
+        self.size = PETIT_SIZE
+        self.water = 0 < 3
+    
+    def nom(self):
+        if self.size == PETIT_SIZE : 
+            return " petite " + self.type 
+        elif self.size == MOYEN_SIZE :
+            return " moyenne " + self.type
+        elif self.size == GRAND_SIZE :
+            return self.type + " mure"
+    
+    def arroser(self):
+        self.water += 1
+        if self.water == 1:
+            self.size = MOYEN_SIZE
+        elif self.water == 2:
+            self.size = GRAND_SIZE
+
 
 class CookoBot(arcade.Window):
     def __init__(self):
@@ -107,7 +130,7 @@ class CookoBot(arcade.Window):
         for _ in range(NB_OBJ):  # NB_OBJ objects aléatoires
             x = random.randint(0, NB_TILES - 1)
             y = random.randint(0, NB_TILES - 1)
-            fruit = random.choice(self.objects)
+            fruit = Fruit(x,y,self.objects)
             self.items_on_map[(x, y)] = fruit
 
         # Placement aléatoire des tuiles d'eau
@@ -162,9 +185,7 @@ class CookoBot(arcade.Window):
         for (x, y), fruit in self.items_on_map.items():
             position_x = x * TILE_SIZE + TILE_SIZE // 2 + PADDING
             position_y = y * TILE_SIZE + TILE_SIZE // 2 + PADDING
-            arcade.draw_texture_rectangle(
-                position_x, position_y, OBJ_SIZE, OBJ_SIZE, self.fruit_textures[fruit]
-            )
+            arcade.draw_texture_rectangle(position_x, position_y, fruit.size, fruit.size, self.fruit_textures[fruit.type])
 
         # Dessiner le personnage
         arcade.draw_texture_rectangle(
@@ -231,7 +252,7 @@ class CookoBot(arcade.Window):
         )
         for i, item in enumerate(self.inventory):
             arcade.draw_text(
-                item,
+                item.nom(),
                 INVENTORY_TEXT_X,
                 INVENTORY_TEXT_Y - INVENTORY_TEXT_HEIGHT * i,
                 arcade.color.MAUVE_TAUPE,
