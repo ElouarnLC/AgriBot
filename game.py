@@ -14,7 +14,7 @@ class Fruit():
         self.y = y
         self.type = random.choice(type)
         self.size = PETIT_SIZE
-        self.water = 0 < 3
+        self.water = 0 
     
     def nom(self):
         if self.size == PETIT_SIZE : 
@@ -26,10 +26,13 @@ class Fruit():
     
     def arroser(self):
         self.water += 1
+        print(self.water)
         if self.water == 1:
             self.size = MOYEN_SIZE
+            print("moyen")
         elif self.water == 2:
             self.size = GRAND_SIZE
+            print("grand")
 
 
 class CookoBot(arcade.Window):
