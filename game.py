@@ -19,21 +19,21 @@ class Fruit:
 
     def nom(self):
         if self.size == PETIT_SIZE:
-            return " petite " + self.type
+            return " small " + self.type
         elif self.size == MOYEN_SIZE:
-            return " moyenne " + self.type
+            return " mid " + self.type
         elif self.size == GRAND_SIZE:
-            return self.type + " mure"
+            return self.type + " big"
 
     def arroser(self):
         self.water += 1
         print(self.water)
         if self.water == 1:
             self.size = MOYEN_SIZE
-            print("moyen")
+            print("mid")
         elif self.water == 2:
             self.size = GRAND_SIZE
-            print("grand")
+            print("big")
 
 
 class CookoBot(arcade.Window):
@@ -42,7 +42,7 @@ class CookoBot(arcade.Window):
         """Initialisation de la fenêtre de jeu."""
         self.player = None
         self.inventory = []
-        self.objects = ["Banane", "Pomme", "Poire"]
+        self.objects = ["Banana", "Apple", "Pear"]
         self.actions_stack = []
         self.items_on_map = {}
         self.path = []  # Chemin calculé
@@ -73,17 +73,21 @@ class CookoBot(arcade.Window):
             text="Ramasser", width=BUTTON_WIDTH, style=BUTTON_MAUVE
         )
         pick_up_button.on_click = self.action_pick
-        horizontal_container.add(pick_up_button.with_space_around(right=PADDING))  # Espacement à droite
+        horizontal_container.add(
+            pick_up_button.with_space_around(right=PADDING)
+        )  # Espacement à droite
 
         # Créer le bouton de ramassage
-        drop_button  = arcade.gui.UIFlatButton(
+        drop_button = arcade.gui.UIFlatButton(
             text="Déposer", width=BUTTON_WIDTH, style=BUTTON_MAUVE
         )
-        drop_button .on_click = self.action_drop
-        horizontal_container.add(drop_button )
+        drop_button.on_click = self.action_drop
+        horizontal_container.add(drop_button)
 
         # Ajouter le conteneur horizontal au conteneur principal
-        main_container.add(horizontal_container.with_space_around(bottom=10))  # Espacement en bas
+        main_container.add(
+            horizontal_container.with_space_around(bottom=10)
+        )  # Espacement en bas
 
         # Arroser
         drop_water_button = arcade.gui.UIFlatButton(
@@ -95,14 +99,13 @@ class CookoBot(arcade.Window):
         # Ajouter le conteneur principal à l'interface
         self.action_box.add(main_container)
 
-
         # Créer la zone de texte
         self.text_input = arcade.gui.UIInputText(
             height=INSTRUCTION_TEXT_HEIGHT,
             width=INSTRUCTION_TEXT_WIDTH,
             text_color=arcade.color.MAUVE_TAUPE,
             font_size=14,
-            text="Attrape une pomme !",
+            text="Water an apple !",
             multiline=True,
         )
         self.chat_box.add(self.text_input)
@@ -145,9 +148,9 @@ class CookoBot(arcade.Window):
         # Chargement des textures
         self.player_texture = arcade.load_texture("images/robot.png")
         self.fruit_textures = {
-            "Banane": arcade.load_texture("images/banane.png"),
-            "Pomme": arcade.load_texture("images/pomme.png"),
-            "Poire": arcade.load_texture("images/poire.png"),
+            "Banana": arcade.load_texture("images/banane.png"),
+            "Apple": arcade.load_texture("images/pomme.png"),
+            "Pear": arcade.load_texture("images/poire.png"),
         }
 
         # Placement aléatoire des objets sur la carte
@@ -494,12 +497,21 @@ class CookoBot(arcade.Window):
         self.execute_stack()
 
     def drop_water(self, event=None):
-        if self.water_drops > 0:
-            current_pos = (self.player["x"], self.player["y"])
-            if current_pos in self.items_on_map:
-                print("")
-                self.items_on_map[current_pos].arroser()
-                self.water_drops -= 1
+        try:
+            if self.water_drops > 0:
+                current_pos = (self.player["x"], self.player["y"])
+                if current_pos in self.items_on_map:
+                    print(f"Arrosage à la position {current_pos}")
+                    self.items_on_map[current_pos].arroser()
+                    self.water_drops -= 1
+                    self.action_count += 1  # Incrémente le compteur d'actions
+            else:
+                print("Pas assez de gouttes d'eau pour arroser.")
+        except Exception as e:
+            print(f"Erreur lors de l'arrosage: {e}")
+            traceback.print_exc()
+        finally:
+            self.execute_stack()
 
     def do_action(self, action_input):
         actions = {
@@ -566,13 +578,13 @@ class CookoBot(arcade.Window):
                     return None
 
                 # Update la valeur de l'entrée utilisateur par la commande extraite de la réponse du LLM
-                self.text_input.text = action
+                # self.text_input.text = action
                 llm_actions = action.split(";")
                 for llm_action in llm_actions:
                     self.actions_stack.append(llm_action)
 
             except Exception as e:
-                print("")
+                print("Erreur lors de la communication avec le LLM:")
                 traceback.print_exc()
                 return
         else:
