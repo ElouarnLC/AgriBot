@@ -15,6 +15,7 @@ class CookoBot(arcade.Window):
         self.player = None
         self.inventory = []
         self.objects = ['Banane', 'Pomme', 'Poire']
+        self.actions_stack = []
         self.items_on_map = {}
         self.path = []  # Chemin calculé
         self.path_index = 0  # Indice du prochain pas à suivre
@@ -223,6 +224,18 @@ class CookoBot(arcade.Window):
         return None  # Aucun chemin trouvé
 
 
+
+
+
+
+
+
+
+
+
+
+
+
     def move_along_path(self, delta_time):
         """Déplace le personnage d'une case le long du chemin calculé."""
         # Vérifie si le chemin n'est pas terminé
@@ -234,6 +247,9 @@ class CookoBot(arcade.Window):
             self.on_draw()  # Redessine l'écran pour montrer le mouvement
         else:
             arcade.unschedule(self.move_along_path)  # Arrête la planification lorsque le déplacement est terminé
+            self.execute_stack
+
+
     
 
     def action_move(self, event=None):
@@ -265,6 +281,8 @@ class CookoBot(arcade.Window):
                 del self.items_on_map[current_pos]  # Retirer l'objet de la carte
             self.inventory.append(item)  # Ajouter l'objet à l'inventaire
             self.action_count += 1  # Incrémente le compteur d'actions
+        self.execute_stack()
+
 
 
     def action_drop(self, event=None):
@@ -291,39 +309,13 @@ class CookoBot(arcade.Window):
             item_to_drop = self.inventory.popleft() # Retirer le dernier objet de l'inventaire
             self.items_on_map[current_pos] = item_to_drop # Le déposer sur la carte
             self.inventory.append(existing_item) # Ajouter l'objet existant à l'inventaire
+        self.execute_stack()
+
+
     
-
-    def send_instruction(self, event=None):
-        """Envoie l'instruction de l'utilisateur pour exécution. Si le LLM est activé, utilise la réponse du LLM.
-        Sinon, exécute l'action spécifiée par l'utilisateur.
-        
-        Args:
-            event (arcade.gui.UIEvent): Événement de l'interface utilisateur.
-        """
-        print("\n>>> INSTRUCTION DE L'UTILISATEUR\n" + self.text_input.text)
-        
-        if self.llm_activated:
-            try:
-                # Demande au LLM de produire la commande
-                prompt = make_prompt(self.text_input.text, self.items_on_map, self.player)
-                answer = make_request(prompt)
-                print("--> REPONSE DU LLM\n" + answer)
-                thoughts, action = extract_thoughts_and_command(answer)
-                
-                # Affiche les informations extraites
-                if thoughts is None or action is None:
-                    print("Erreur lors de l'extraction des informations")
-                    return None
-                
-                # Update la valeur de l'entrée utilisateur par la commande extraite de la réponse du LLM
-                self.text_input.text = action
-
-            except Exception as e:
-                print('')
-                traceback.print_exc()
-                return 
-                    
-        # Actions possibles
+    
+    
+    def do_action(self, action_input):
         actions = {
             'PICK': self.action_pick,
             'DROP': self.action_drop,
@@ -331,7 +323,7 @@ class CookoBot(arcade.Window):
         }
 
         # Extrait l'action et les coordonnées de l'entrée utilisateur
-        text_split = self.text_input.text.split(" ")
+        text_split = action_input.split(" ")
         if len(text_split) == 2:
             action, coordinates = text_split
         else:
@@ -355,9 +347,51 @@ class CookoBot(arcade.Window):
             print(f"Erreur: Action {action} non valide")
             return None
 
-        # Efface le texte de l'entrée utilisateur
-        self.text_input.clear()
-        self.text_input.trigger_render()
+    def send_instruction(self, event=None):
+        """Envoie l'instruction de l'utilisateur pour exécution. Si le LLM est activé, utilise la réponse du LLM.
+        Sinon, exécute l'action spécifiée par l'utilisateur.
+        
+        Args:
+            event (arcade.gui.UIEvent): Événement de l'interface utilisateur.
+        """
+        print("\n>>> INSTRUCTION DE L'UTILISATEUR\n" + self.text_input.text)
+        
+        if self.llm_activated:
+            action = ""
+            try:
+                # Demande au LLM de produire la commande
+                prompt = make_prompt(self.text_input.text, self.items_on_map, self.player)
+                answer = make_request(prompt)
+                print("--> REPONSE DU LLM\n" + answer)
+                thoughts, action = extract_thoughts_and_command(answer)
+                
+                # Affiche les informations extraites
+                if thoughts is None or action is None:
+                    print("Erreur lors de l'extraction des informations")
+                    return None
+                
+                # Update la valeur de l'entrée utilisateur par la commande extraite de la réponse du LLM
+                self.text_input.text = action
+                llm_actions = action.split(";")
+                for llm_action in llm_actions:
+                    self.actions_stack.append(llm_action)
+                
+
+            except Exception as e:
+                print('')
+                traceback.print_exc()
+                return 
+        else:
+            self.do_action(self.text_input.text)
+            
+        self.execute_stack()
+            
+        
+    def execute_stack(self):
+        if self.actions_stack:
+            action = self.actions_stack.pop(0)
+            self.do_action(action)
+            print(action)
 
 
 if __name__ == "__main__":
