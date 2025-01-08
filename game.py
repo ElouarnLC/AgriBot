@@ -493,6 +493,7 @@ class CookoBot(arcade.Window):
             "PICK": self.action_pick,
             "DROP": self.action_drop,
             "MOVE": self.action_move,
+            "DROP_WATER": self.drop_water,
         }
 
         # Extrait l'action et les coordonnées de l'entrée utilisateur
@@ -536,7 +537,11 @@ class CookoBot(arcade.Window):
             try:
                 # Demande au LLM de produire la commande
                 prompt = make_prompt(
-                    self.text_input.text, self.items_on_map, self.player
+                    self.text_input.text,
+                    self.items_on_map,
+                    self.player,
+                    self.water_tiles,
+                    self.water_drops,
                 )
                 answer = make_request(prompt)
                 print("--> REPONSE DU LLM\n" + answer)
