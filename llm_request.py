@@ -28,6 +28,10 @@ The player is located at the following x and y positions:
     1/ "PICK": Pick up an object at the current position and stacks it on the player's inventory.
     2/ "DROP": Drop the last object in the stack created by the PICK action at the current position and removes it from the inventory.
     3/ "MOVE x,y": Move the player to a new position on the map. The new position is defined by the x and y coordinates.
+    4/ It is IMPOSSIBLE to place multiple objects at the same place. You can't drop an object where one is already placed.
+    
+    We define a "fruit salad" as 3 differents objects placed next to each other, in a row. The objects do not have to be placed in a precise order, but they have to be placed in a row.
+    The position of a fruit salade is defined by the position of the first object in the row.
     
     Here is the user's message:
     {user_message}
