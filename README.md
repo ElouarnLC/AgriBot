@@ -1,4 +1,4 @@
-# CookoBot
+# AgriBot
 ### Développez des Agents LLM à travers un Mini Jeu Ludique
 
 Ce projet offre une approche immersive pour apprendre comment interagir avec des modèles avancés de type LLM à travers un mini jeu vidéo interactif.
@@ -8,7 +8,7 @@ Ce projet offre une approche immersive pour apprendre comment interagir avec des
 ## Fonctionnalités de CookoBot
 
 ### Le Jeu
-CookoBot est un jeu dans lequel vous contrôlez un robot capable de :
+AgriBot est un jeu dans lequel vous contrôlez un robot capable de :
 - **Se déplacer** sur une grille 15x15.
 - **Ramasser des objets** placés sur certaines cases.
 - **Déposer des objets** de son inventaire limité à trois éléments.
