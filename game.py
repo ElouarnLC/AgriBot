@@ -72,6 +72,13 @@ class CookoBot(arcade.Window):
         drop_button.on_click = self.action_drop
         self.action_box.add(drop_button)
 
+        # Créer le bouton d'arrosage
+        drop_water_button = arcade.gui.UIFlatButton(
+            text="Arroser", width=BUTTON_WIDTH, style=BUTTON_MAUVE
+        )
+        drop_water_button.on_click = self.drop_water
+        self.action_box.add(drop_water_button)
+
         # Créer la zone de texte
         self.text_input = arcade.gui.UIInputText(
             height=INSTRUCTION_TEXT_HEIGHT,
@@ -459,6 +466,15 @@ class CookoBot(arcade.Window):
                 existing_item
             )  # Ajouter l'objet existant à l'inventaire
         self.execute_stack()
+    
+    def drop_water(self, event=None):
+        if self.water_drops>0:
+            current_pos = (self.player["x"], self.player["y"])
+            if current_pos in self.items_on_map:
+                print("")
+                self.items_on_map[current_pos].arroser()
+                self.water_drops-=1
+                   
 
     def do_action(self, action_input):
         actions = {
