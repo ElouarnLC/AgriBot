@@ -239,7 +239,10 @@ class CookoBot(arcade.Window):
     def move_along_path(self, delta_time):
         """Déplace le personnage d'une case le long du chemin calculé."""
         # Vérifie si le chemin n'est pas terminé
+        print("eh oh")
         if self.path_index < len(self.path):
+
+            print("index:"+str(self.path_index))
             # Déplace le personnage à l'étape suivante
             self.player['x'], self.player['y'] = self.path[self.path_index]
             self.path_index += 1
@@ -247,8 +250,8 @@ class CookoBot(arcade.Window):
             self.on_draw()  # Redessine l'écran pour montrer le mouvement
         else:
             print("Déplacement terminé")
-            self.execute_stack()
             arcade.unschedule(self.move_along_path)  # Arrête la planification lorsque le déplacement est terminé
+            self.execute_stack()
             
 
 
@@ -261,8 +264,10 @@ class CookoBot(arcade.Window):
             event (arcade.gui.UIEvent): Événement de l'interface utilisateur.
         """
         # Execute le mouvement
+        print("moving")
         self.action_count += 1  # Incrémente le compteur d'actions
         arcade.unschedule(self.move_along_path)  # Arrête le déplacement actuel
+        
         arcade.schedule(self.move_along_path, MOVE_DELAY)  # Planifie la fonction de déplacement
 
 
@@ -392,7 +397,7 @@ class CookoBot(arcade.Window):
             
         
     def execute_stack(self):
-        print("Execute stack")
+        print("///// Execute stack")
         if self.actions_stack:
             action = self.actions_stack.pop(0)
             print(action)
