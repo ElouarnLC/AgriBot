@@ -8,22 +8,23 @@ from constants import *
 from llm_request import make_request, make_prompt, extract_thoughts_and_command
 import traceback
 
-class Fruit():
-    def __init__(self,x,y, type):
+
+class Fruit:
+    def __init__(self, x, y, type):
         self.x = x
         self.y = y
         self.type = random.choice(type)
         self.size = PETIT_SIZE
-        self.water = 0 
-    
+        self.water = 0
+
     def nom(self):
-        if self.size == PETIT_SIZE : 
-            return " petite " + self.type 
-        elif self.size == MOYEN_SIZE :
+        if self.size == PETIT_SIZE:
+            return " petite " + self.type
+        elif self.size == MOYEN_SIZE:
             return " moyenne " + self.type
-        elif self.size == GRAND_SIZE :
+        elif self.size == GRAND_SIZE:
             return self.type + " mure"
-    
+
     def arroser(self):
         self.water += 1
         print(self.water)
@@ -140,14 +141,17 @@ class CookoBot(arcade.Window):
         for _ in range(NB_OBJ):  # NB_OBJ objects aléatoires
             x = random.randint(0, NB_TILES - 1)
             y = random.randint(0, NB_TILES - 1)
-            fruit = Fruit(x,y,self.objects)
+            fruit = Fruit(x, y, self.objects)
             self.items_on_map[(x, y)] = fruit
 
         # Placement aléatoire des tuiles d'eau
         for _ in range(NB_WATER_TILES):  # NB_WATER_TILES water tiles
-            x = random.randint(0, NB_TILES - 1)
-            y = random.randint(0, NB_TILES - 1)
-            self.water_tiles.add((x, y))
+            while True:
+                x = random.randint(0, NB_TILES - 1)
+                y = random.randint(0, NB_TILES - 1)
+                if (x, y) not in self.items_on_map:
+                    self.water_tiles.add((x, y))
+                    break
 
     def on_draw(self):
         """Rendu de l'écran."""
@@ -195,7 +199,13 @@ class CookoBot(arcade.Window):
         for (x, y), fruit in self.items_on_map.items():
             position_x = x * TILE_SIZE + TILE_SIZE // 2 + PADDING
             position_y = y * TILE_SIZE + TILE_SIZE // 2 + PADDING
-            arcade.draw_texture_rectangle(position_x, position_y, fruit.size, fruit.size, self.fruit_textures[fruit.type])
+            arcade.draw_texture_rectangle(
+                position_x,
+                position_y,
+                fruit.size,
+                fruit.size,
+                self.fruit_textures[fruit.type],
+            )
 
         # Dessiner le personnage
         arcade.draw_texture_rectangle(
@@ -469,15 +479,14 @@ class CookoBot(arcade.Window):
                 existing_item
             )  # Ajouter l'objet existant à l'inventaire
         self.execute_stack()
-    
+
     def drop_water(self, event=None):
-        if self.water_drops>0:
+        if self.water_drops > 0:
             current_pos = (self.player["x"], self.player["y"])
             if current_pos in self.items_on_map:
                 print("")
                 self.items_on_map[current_pos].arroser()
-                self.water_drops-=1
-                   
+                self.water_drops -= 1
 
     def do_action(self, action_input):
         actions = {
