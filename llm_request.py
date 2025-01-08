@@ -3,7 +3,6 @@ import json
 from dotenv import load_dotenv
 import os
 import time
-from openai import OpenAI
 
 # Load the .env file
 dotenv = load_dotenv()
@@ -37,7 +36,7 @@ The player is located at the following x and y positions:
     You should only respond in the format as described below:
     RESPONSE FORMAT:
     THOUGHTS: Based on the information I listed above, in 50 words, do reasoning about what the next task should be.
-    COMMAND: The next COMMAND. A COMMAND can be composed of one or multiple actions, which are defined above. You can do as many actions as you want in a COMMAND, in any order.
+    COMMAND: The next COMMAND. A COMMAND can be composed of one or multiple actions, which are defined above. You can do as many actions as you want in a COMMAND, in any order. Split every action by a single ";" and no space.
     """
     return prompt
 
@@ -81,35 +80,7 @@ def make_request(prompt):
             })
         )
         return response.json()
-    
-    def send_free_request():
-        client = OpenAI(
-        base_url="https://openrouter.ai/api/v1",
-        api_key=os.getenv('API_FREE_KEY'),
-        )
 
-        completion = client.chat.completions.create(
-        model="google/gemini-2.0-flash-thinking-exp:free",
-        messages=[
-            {
-            "role": "user",
-            "content": [
-                {
-                "type": "text",
-                "text": "What's in this image?"
-                },
-                {
-                "type": "image_url",
-                "image_url": {
-                    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg"
-                }
-                }
-            ]
-            }
-        ]
-        )
-        print("ANSWER" + completion.choices[0].message.content)
-        return completion.choices[0].message
     
     # Send request 
     response = send_request()
@@ -120,7 +91,7 @@ def make_request(prompt):
         # Wait for 30 seconds and try again
         print('Rate limit reached, waiting for 30 seconds')
         time.sleep(30)
-        response = send_free_request()
+        response = send_request()
 
     # Check if the request was successful
     if 'error' in response:

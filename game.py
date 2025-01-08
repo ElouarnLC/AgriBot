@@ -246,8 +246,10 @@ class CookoBot(arcade.Window):
             self.step_count += 1 # Incrémente le compteur de pas
             self.on_draw()  # Redessine l'écran pour montrer le mouvement
         else:
+            print("Déplacement terminé")
+            self.execute_stack()
             arcade.unschedule(self.move_along_path)  # Arrête la planification lorsque le déplacement est terminé
-            self.execute_stack
+            
 
 
     
@@ -384,14 +386,20 @@ class CookoBot(arcade.Window):
         else:
             self.do_action(self.text_input.text)
             
+        print(self.actions_stack[0])
+        print(self.actions_stack[1])
         self.execute_stack()
             
         
     def execute_stack(self):
+        print("Execute stack")
         if self.actions_stack:
             action = self.actions_stack.pop(0)
-            self.do_action(action)
             print(action)
+            self.do_action(action)
+        else :
+            print("Stack vide")
+            return None
 
 
 if __name__ == "__main__":
